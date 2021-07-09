@@ -1,19 +1,15 @@
-# hello-auth
+# Hello Authentication
 
-## Project setup
-```
-npm install
-```
+# What is this?
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+### This is a simple authentication app.
 
-### Compiles and minifies for production
-```
-npm run build
-```
+# Vue JS
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## 1. Used by
+
+    * Vuex.
+    * Routing.
+    * HTML.
+    * CSS.
+    * Vanilla Javascript.
