@@ -1,6 +1,6 @@
 <template>
   <div id="sign_up">
-    <Toast v-if="showToast" :message="errorMessage" />
+    <Toast v-if="showToast" />
     <transition name="fade" appear>
       <form @submit.prevent="submit" class="mt-2">
         <div class="input_container">
@@ -49,6 +49,7 @@
 
 <script>
 import { mapState, mapMutations } from "vuex";
+import useAuth from "@/composables/useAuth.js";
 import Toast from "@/components/Toast.vue";
 
 export default {
@@ -72,47 +73,54 @@ export default {
     this.passwordAgainValue = "1234";
   },
   methods: {
-    submit() {
+    async submit() {
       if (!this.dataIsValid()) {
         this.triggerToast();
         return;
       }
 
-      // note. request post to server to create new member.
-      console.log(this.emailValue);
-      console.log(this.usernameValue);
-      console.log(this.passwordValue);
-      console.log(this.passwordAgainValue);
+      const { signUp } = useAuth();
+      const res = await signUp(
+        JSON.stringify({
+          email: this.emailValue,
+          username: this.usernameValue,
+          password: this.passwordValue,
+        })
+      );
+      if (res) {
+        this.updateToastMessage("Sign up success.");
+        this.$router.push({ name: "SignIn" });
+      } else {
+        this.updateToastMessage("Sign up fail.");
+      }
+      this.triggerToast();
     },
     dataIsValid() {
       if (this.emailValue.length === 0) {
-        this.currentErrorPosition = "email";
+        this.updateToastMessage("email is required.");
         this.$refs.email.focus();
         return false;
       }
       if (this.usernameValue.length === 0) {
-        this.currentErrorPosition = "username";
+        this.updateToastMessage("username is required.");
         this.$refs.username.focus();
         return false;
       }
       if (this.passwordValue.length === 0) {
-        this.currentErrorPosition = "password";
+        this.updateToastMessage("password is required.");
         this.$refs.password.focus();
         return false;
       }
       if (this.passwordAgainValue.length === 0) {
-        this.currentErrorPosition = "password again";
+        this.updateToastMessage("password again is required.");
         this.$refs.passwordAgain.focus();
         return false;
       }
       return true;
     },
-    ...mapMutations(["triggerToast"]),
+    ...mapMutations("messages/", ["triggerToast", "updateToastMessage"]),
   },
   computed: {
-    errorMessage() {
-      return `${this.currentErrorPosition} is required.`;
-    },
     emailIsNotValid() {
       return (
         this.currentErrorPosition === "email" && this.emailValue.length === 0
@@ -136,8 +144,11 @@ export default {
         this.passwordAgainValue.length === 0
       );
     },
-    ...mapState({
+    ...mapState("messages/", {
       showToast: (state) => state.showToast,
+    }),
+    ...mapState("members/", {
+      me: (state) => state.me,
     }),
   },
 };

@@ -21,6 +21,9 @@
 label {
   text-align: left;
 }
+span {
+  text-align: left;
+}
 a {
   text-decoration: none;
   color: #171717;
@@ -28,6 +31,15 @@ a {
 /* tag end */
 
 /* classes start */
+.nav_item:hover {
+  color: #13a086;
+}
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 .input_container {
   display: flex;
   flex-direction: column;

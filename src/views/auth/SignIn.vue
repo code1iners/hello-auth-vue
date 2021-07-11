@@ -1,6 +1,6 @@
 <template>
   <div id="sign_in">
-    <Toast v-if="showToast" :message="errorMessage" />
+    <Toast v-if="showToast" />
     <transition name="fade" appear>
       <form @submit.prevent="submit" class="mt-2">
         <div class="input_container">
@@ -29,6 +29,7 @@
 
 <script>
 import { mapState, mapMutations } from "vuex";
+import useAuth from "@/composables/useAuth.js";
 import Toast from "@/components/Toast.vue";
 
 export default {
@@ -48,15 +49,28 @@ export default {
     this.passwordValue = "1234";
   },
   methods: {
-    submit() {
+    async submit() {
       if (!this.dataIsValid()) {
         this.triggerToast();
         return;
       }
 
-      // note. request post to server to create new member.
-      console.log(this.emailValue);
-      console.log(this.passwordValue);
+      const { signIn } = useAuth();
+      const res = await signIn(
+        JSON.stringify({
+          email: this.emailValue,
+          password: this.passwordValue,
+        })
+      );
+      if (res) {
+        this.updateMe(res);
+
+        this.updateToastMessage("Sign in success.");
+        this.$router.push({ name: "Me" });
+      } else {
+        this.updateToastMessage("Sign in fail.");
+      }
+      this.triggerToast();
     },
     dataIsValid() {
       if (this.emailValue.length === 0) {
@@ -71,12 +85,10 @@ export default {
       }
       return true;
     },
-    ...mapMutations(["triggerToast"]),
+    ...mapMutations("messages/", ["triggerToast", "updateToastMessage"]),
+    ...mapMutations("members/", ["updateMe"]),
   },
   computed: {
-    errorMessage() {
-      return `${this.currentErrorPosition} is required.`;
-    },
     emailIsNotValid() {
       return (
         this.currentErrorPosition === "email" && this.emailValue.length === 0
@@ -88,8 +100,11 @@ export default {
         this.passwordValue.length === 0
       );
     },
-    ...mapState({
+    ...mapState("messages/", {
       showToast: (state) => state.showToast,
+    }),
+    ...mapState("members/", {
+      me: (state) => state.me,
     }),
   },
 };

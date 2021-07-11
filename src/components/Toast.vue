@@ -1,13 +1,19 @@
 <template>
   <teleport to=".messages">
-    <div class="toast">{{ message }}</div>
+    <div class="toast">{{ toastMessage }}</div>
   </teleport>
 </template>
 
 <script>
+import { mapState } from "vuex";
+
 export default {
   name: "Toast",
-  props: ["message"],
+  computed: {
+    ...mapState("messages/", {
+      toastMessage: (state) => state.toastMessage,
+    }),
+  },
 };
 </script>
 
